@@ -28,6 +28,9 @@ By integrating **machine learning** for signature verification and **blockchain*
 3. **MetaMask (Browser Extension)**  
    Used to manage Ethereum accounts and interact with deployed smart contracts via the browser.
 
+4. **Set up an account in Pinata**
+   Uploaded the reference signature imgaes for reference
+
 ---
 
 ### Running the Application
