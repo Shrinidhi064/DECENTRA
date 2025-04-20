@@ -28,8 +28,11 @@ By integrating **machine learning** for signature verification and **blockchain*
 3. **MetaMask (Browser Extension)**  
    Used to manage Ethereum accounts and interact with deployed smart contracts via the browser.
 
-4. **Set up an account in Pinata**
-   Uploaded the reference signature imgaes for reference
+4. **Pinata**  
+   Used to upload and manage encrypted reference signature images on IPFS. Requires account setup.
+
+5. **XAMPP**  
+   Provides a local Apache server and MySQL database for any auxiliary services or testing needs.
 
 ---
 
@@ -58,5 +61,5 @@ truffle init
 truffle compile
 truffle migrate --network development
 ```
-
+Replace empty strings in the API_KEY in some of the backend and smartcontract files with your Google AI studio and pinata key
 Refer requirements.txt to install python libraries for backend!
