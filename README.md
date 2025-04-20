@@ -6,8 +6,12 @@
 **Software Requirements**
 ![image](https://github.com/user-attachments/assets/7a4c1a88-bf57-40a7-8e35-7c4a7f3c1795)
 
+
+
 **System Workflow**
 ![image](https://github.com/user-attachments/assets/3ecf7cb2-0c06-463a-8570-51bab35f99ad)
+
+
 
 **Required installations**
 **IPFS**
