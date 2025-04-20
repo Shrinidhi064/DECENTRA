@@ -1,0 +1,8 @@
+Django
+django-cors-headers
+google-generativeai
+djangorestframework
+requests
+python-decouple
+ipfshttpclient==0.8.0a2 
+web3

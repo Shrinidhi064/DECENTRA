@@ -1,5 +1,5 @@
-const pinataApiKey = "c3e74edfb18aa86e6866";
-const pinataSecretKey = "9f7fb455d93d9787d3921d71307f8d13433ecb985734bbf7b4089ba9aaeb6ee8";
+const pinataApiKey = "";
+const pinataSecretKey = "";
 
 // Function to fetch all pinned files from Pinata
 async function fetchPinataFiles() {
