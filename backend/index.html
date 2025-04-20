@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Content Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input, button { padding: 10px; margin: 5px; }
+    </style>
+    <script>
+        async function generateContent() {
+            const queryText = document.getElementById('query-text').value;
+
+            if (!queryText) {
+                alert('Please enter a query.');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/generate-content/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ queryText }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('result').textContent = `Generated Content: ${result.generatedContent}`;
+                } else {
+                    document.getElementById('result').textContent = `Error: ${result.error || result.details}`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = 'An error occurred.';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Gemini Content Generator</h1>
+    <label for="query-text">Enter your query:</label>
+    <input type="text" id="query-text" placeholder="What do you want to ask?" />
+    <button onclick="generateContent()">Submit</button>
+    <p id="result"></p>
+</body>
+</html>

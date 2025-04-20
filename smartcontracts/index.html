@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cheque Validation</title>
+  <script src="https://cdn.jsdelivr.net/npm/web3@1.7.3/dist/web3.min.js"></script>
+</head>
+<body>
+  <h1>Cheque Validation System</h1>
+
+  <!-- Input fields for cheque details -->
+  <div>
+    <label>Cheque Number:</label>
+    <input type="text" id="chequeNumber" />
+  </div>
+  <div>
+    <label>Amount:</label>
+    <input type="number" id="amount" />
+  </div>
+  <div>
+    <label>Date of Issue:</label>
+    <input type="date" id="dateOfIssue" />
+  </div>
+  <button id="validateCheque">Validate Cheque</button>
+
+  <h2>Retrieve Cheque Details</h2>
+  <div>
+    <label>Enter Cheque Number:</label>
+    <input type="text" id="retrieveChequeNumber" />
+    <button id="getCheque">Get Cheque Details</button>
+  </div>
+
+  <div id="output"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

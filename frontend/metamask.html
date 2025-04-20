@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaMask Integration</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .header {
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #023535;
+        }
+
+        .connect-button {
+            background-color: #023535;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .connect-button:hover {
+            background-color: #045252;
+        }
+
+        .status {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #023535;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Connect to MetaMask</h1>
+    </div>
+    <button id="connectButton" class="connect-button">Connect Wallet</button>
+    <div id="status" class="status"></div>
+
+    <script>
+        const connectButton = document.getElementById('connectButton');
+        const statusDiv = document.getElementById('status');
+
+        connectButton.addEventListener('click', async () => {
+            // Debugging: Check if MetaMask is detected
+            if (typeof window.ethereum !== 'undefined') {
+                console.log("MetaMask is installed!");
+                try {
+                    // Request account access
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+                    statusDiv.innerText = `Connected as ${account}`;
+                    console.log("Connected account:", account);
+                } catch (error) {
+                    console.error("Error connecting to MetaMask:", error);
+                    statusDiv.innerText = "Failed to connect wallet.";
+                }
+            } else {
+                console.log("MetaMask is not detected.");
+                statusDiv.innerText = "MetaMask is not installed. Please install it.";
+                alert("Please install MetaMask!");
+            }
+        });
+
+        // Check if MetaMask is detected immediately when the page loads
+        window.onload = () => {
+            if (typeof window.ethereum === 'undefined') {
+                console.log("MetaMask not found on page load.");
+            } else {
+                console.log("MetaMask detected on page load.");
+            }
+        };
+    </script>
+</body>
+</html>

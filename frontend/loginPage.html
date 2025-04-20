@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: rgb(243, 246, 246);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .app-header img {
+            width: 48px;
+            height: 45px;
+            margin-right: 10px;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        .app-header h1 {
+            font-size: 24px;
+            color: white;
+        }
+
+        .login-box {
+            background-color: white;
+            padding: 25px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 400px;
+            height: 330px;
+        }
+
+        .login-box h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color:#023535;
+        }
+
+        .login-box input[type="text"],
+        .login-box input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .login-box .error-message {
+            color: red;
+            font-size: 12px;
+            display: none;
+            margin-bottom: 10px;
+        }
+
+        .login-box a {
+            color: #023535;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 10px;
+            background-color: #023535;
+            color: white;
+            border: none;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .login-box button:hover {
+            background-color:#023535;
+        }
+
+        /* Tooltip style */
+        .tooltip {
+            position: absolute;
+            background-color: #f9f9f9;
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 12px;
+            color: #555;
+            width: auto;
+            max-width: 200px;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            pointer-events: none;
+            text-align: left;
+        }
+
+        .tooltip p {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Modal Style */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4); /* Fallback color for modal backdrop */
+            padding-top: 60px;
+            text-align: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 5px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-content .tick {
+            font-size: 50px;
+            color: green;
+            margin-bottom: 20px;
+        }
+
+        .modal-content h2 {
+            font-size: 24px;
+            color: #023535;
+            margin-bottom: 20px;
+        }
+
+        .modal-content button {
+            background-color: #023535;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .modal-content button:hover {
+            background-color: #045252;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <img src="logo.png" alt="Logo Placeholder">
+        <h1 style="color: #023535; font-family: 'Poppins', sans-serif; font-weight: 300;">DecentraCheque</h1>
+    </div>
+    <div class="login-box">
+        <h1 style="text-align: left;">Login</h1>
+        <div class="error-message" id="error-msg">All fields are required and must meet validation criteria.</div>
+        <form id="login-form">
+            <input type="text" id="username" placeholder="Email Address" required style="margin-bottom: 20px;">
+            <div class="input-container">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <a href="forgotPassword.html" id="forgot-password" style="display: block; margin-top: 50px;">Forgot Password?</a>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <div class="tick">
+                <i class="fas fa-check-circle"></i> <!-- Green check mark icon -->
+            </div>
+            <h2>Login Successful!</h2>
+            <button id="connectWalletBtn">Connect to Wallet</button>
+            <p id="wallet-address" style="margin-top: 20px; font-size: 14px; color: #023535;"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent form submission
+
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+            const errorMessage = document.getElementById('error-msg');
+
+            let valid = true;
+
+            // Username validation (email or non-empty text)
+            if (!username.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username.value.trim())) {
+                valid = false;
+                username.style.borderColor = 'red';
+            } else {
+                username.style.borderColor = '#ccc';
+            }
+
+            // Password validation (at least 8 characters, one uppercase, one number)
+            const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+            if (!password.value.trim() || !passwordRegex.test(password.value.trim())) {
+                valid = false;
+                password.style.borderColor = 'red';
+            } else {
+                password.style.borderColor = '#ccc';
+            }
+
+            if (!valid) {
+                errorMessage.style.display = 'block';
+            } else {
+                errorMessage.style.display = 'none';
+                document.getElementById('myModal').style.display = 'block'; // Show modal
+            }
+        });
+
+        // Close the modal when the user clicks on the close button
+        document.getElementById('closeModal').addEventListener('click', function() {
+            document.getElementById('myModal').style.display = 'none';
+        });
+
+        // Close the modal if the user clicks outside of the modal content
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('myModal')) {
+                document.getElementById('myModal').style.display = 'none';
+            }
+        };
+
+        const connectWalletBtn = document.getElementById('connectWalletBtn');
+    const walletAddress = document.getElementById('wallet-address');
+
+    // Function to check if MetaMask is installed
+    function checkMetaMask() {
+        if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
+            console.log("MetaMask is installed!");
+        } else {
+            console.error("MetaMask is not installed!");
+            walletAddress.innerText = "MetaMask is not installed. Please install it to proceed.";
+        }
+    }
+
+    // Function to connect to MetaMask
+    async function connectMetaMask() {
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                // Request account access
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                // Display connected account
+                walletAddress.innerText = `Connected to MetaMask: ${accounts[0]}`;
+                console.log("Connected account:", accounts[0]);
+            } catch (error) {
+                // Handle errors
+                walletAddress.innerText = 'Failed to connect MetaMask. Please try again.';
+                console.error("Error connecting to MetaMask:", error);
+            }
+        } else {
+            console.error("MetaMask is not available.");
+            // walletAddress.innerText = "MetaMask is not available. Please install it.";
+        }
+    }
+
+    // Add click event listener to the connect wallet button
+    connectWalletBtn.addEventListener('click', connectMetaMask);
+
+    // Check MetaMask installation on page load
+    window.onload = checkMetaMask;
+    </script>
+</body>
+</html>

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheque Processing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+
+
+    <style>
+        body {
+            margin: 0;  
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #045252;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Bar Style (NavBar) */
+        .header-bar {
+            background-color: white;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-bar img {
+            width: 50px;
+            height: 45px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .header-bar h1 {
+            font-size: 24px;
+            color: #023535;
+            font-weight: normal;
+        }
+
+        /* Sidebar Style */
+        .sidebar {
+            background-color: rgb(230, 226, 226);
+            min-width: 200px;
+            height: calc(100vh - 60px);
+            padding-top: 20px;
+            margin-top: 29px;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar .sidebar-header {
+            font-size: 18px;
+            color: #023535;
+            margin-bottom: 20px;
+            margin-left: 10px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: #023535;
+            padding: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .sidebar a:hover {
+            background-color: #023535;
+            color: white;
+            width: 200px;
+        }
+
+        .sidebar a.active {
+            background-color: #023535;
+            color: white;
+            width: 200px;
+        }
+
+        /* Main content area */
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+            color: white;
+            width: calc(100% - 220px);
+            flex-grow: 1;
+            margin-top: 20px; 
+        }
+
+        /* Catchy Information Style */
+        .catchy-info {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #f1f1f1;
+        }
+
+        /* File Upload Section Style */
+        .upload-section {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: rgba(255,255,255,0.2);
+            border-width: thin;
+            border-color:#fff;
+            color:#fff;
+            text-align:center;
+            position: relative;
+            cursor:pointer;
+        }
+
+        .upload-section input[type="file"] {
+            display:none; /* Hide default file input */
+        }
+
+        .upload-button, .browse-button {
+            background-color:#023535;
+            color:white;
+            border:none;
+            padding:10px 15px;
+            cursor:pointer;
+            border-radius:.25rem;
+            transition:.3s ease-in-out;
+            margin-left: 20px;
+            font-family: 'Poppins', sans-serif; /* Ensure Poppins font */
+        }
+
+        .upload-button:hover, .browse-button:hover {
+            background-color:#045252;
+            transition:.3s ease-in-out;
+        }
+
+        /* Drag Over Effect */
+        .upload-section.drag-over {
+            border-color:#045252;
+        }
+
+        .upload-instructions {
+            display: block; /* Show instructions initially */
+        }
+
+        .upload-instructions.hidden {
+            display: none; /* Hide instructions once image is selected or dropped */
+        }
+
+        .upload-options {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .upload-options button {
+            background-color: #023535;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 10px;
+            font-family: 'Poppins', sans-serif; /* Ensure Poppins font */
+        }
+
+        .upload-options button:hover {
+            background-color: #045252;
+        }
+
+        /* Image Preview and Confirmation Section */
+        #image-preview {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #image-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            width: 500px;
+            height:500px
+        }
+
+        .extracted-details {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            color: white;
+        }
+        table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: white; /* Set table background to white */
+}
+
+th, td {
+    border: 1px solid #ccc; /* Light grey border */
+    padding: 10px;
+    text-align: left;
+    color: #333; /* Dark grey text for contrast */
+}
+
+th {
+    background-color: #d9d9d9; /* Light grey header */
+    color: #333; /* Dark grey text */
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* Light grey for even rows */
+}
+
+tr:nth-child(odd) {
+    background-color: #ffffff; /* White for odd rows */
+}
+
+tr:hover {
+    background-color: #e0e0e0; /* Slightly darker grey for hover effect */
+}
+.popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .popup-content {
+        background-color: #047474;
+        padding: 30px;
+        text-align: center;
+        border-radius: 10px;
+        color: white;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .loading-symbol {
+        margin: 20px;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    #store-records-btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    #store-records-btn {
+        background-color: #023535;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    #store-records-btn:hover {
+        background-color: #045252;
+    }
+    .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: #047474;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .close-modal {
+            background-color: #023535;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        .close-modal:hover {
+            background-color: #045252;
+        }
+        #signature-image {
+    max-width: 100%; /* Ensure it fits within the popup */
+    height: auto; /* Maintain aspect ratio */
+}
+        .popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: none; /* Hidden by default */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    z-index: 1000; /* On top of other elements */
+}
+
+.popup-content {
+    background-color: #047474; /* Dark teal background */
+    padding: 30px;
+    text-align: center;
+    border-radius: 10px; /* Rounded corners */
+    color: white; /* White text color */
+    max-width: 600px; /* Increase max width for better cropping area */
+    width: 100%; /* Responsive width */
+}
+
+#signature-image {
+    max-width: 80%; /* Ensure it fits within the popup */
+    height: auto; 
+    /* Maintain aspect ratio */
+}
+
+.cropper-container {
+    width: 100%; /* Full width of the popup */
+    height: 300px; /* Set a fixed height for cropping */
+}
+#cropped-image {
+    display: block; /* Ensure it behaves like a block element */
+    margin: 20px auto; /* Center horizontally with auto margins */
+    max-width: 100%; /* Ensure it fits within the modal */
+    height: auto; /* Maintain aspect ratio */
+}
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <div style="display: flex; align-items: center;">
+            <img src="logo.png" alt="Logo">
+            <h1>DecentraCheque - Secure, Smart and Decentralized</h1>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">Menu</div>
+        <a href="#">Home</a>
+        <a href="chequeProcessingPage.html" >Extract Cheque details</a>
+        <div class="sidebar-options">
+            
+            <a href="#" class="active">Sign verification</a>
+            <a href="#">Contact Us</a>
+            <a href="#">About Us</a>
+        </div>
+    </div>
+
+
+    <div class="main-content">
+        <h1>Cheque Records</h1>
+        <div class="catchy-info">Displaying all stored cheques from blockchain</div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Cheque ID</th>
+                    <th>Payee Name</th>
+                    <th>Amount</th>
+                    <th>Amount in Words</th>
+                    <th>Bank Name</th>
+                    <th>Branch</th>
+                    <th>IFSC Code</th>
+                    <th>Date</th>
+                    <th>MICR Code</th>
+                    <th>Account Number</th>
+                </tr>
+            </thead>
+            <tbody id="cheque-records"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let web3;
+        let chequeContract;
+        const contractAddress = "0x4076659Dce91cA318fF480FD109d3F8bA04Ea078";
+        const contractABI = [
+        {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "chequeImageUrl",
+          "type": "string"
+        }
+      ],
+      "name": "ChequeStored",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "cheques",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "payeeName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "amountInNumber",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "amountInWords",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "bankName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "branch",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "ifscCode",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "date",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "micrCode",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "accountNumber",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "chequeImageUrl",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "payeeName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "amountInNumber",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "amountInWords",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "bankName",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "branch",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "ifscCode",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "date",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "micrCode",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "accountNumber",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "chequeImageUrl",
+          "type": "string"
+        }
+      ],
+      "name": "storeCheque",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getCheque",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [],
+      "name": "getChequeIds",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [],
+      "name": "getAllCheques",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "string[]",
+          "name": "",
+          "type": "string[]"
+        },
+        {
+          "internalType": "string[]",
+          "name": "",
+          "type": "string[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    }
+        ];
+
+        async function initWeb3() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.enable();
+            } else {
+                web3 = new Web3(new Web3.providers.HttpProvider("http://127.0.0.1:7545"));
+            }
+            chequeContract = new web3.eth.Contract(contractABI, contractAddress);
+        }
+
+        async function fetchAllCheques() {
+            if (typeof window.ethereum !== "undefined") {
+                await initWeb3();
+                
+                try {
+                    const cheques = await chequeContract.methods.getAllCheques().call();
+                    
+                    const tableBody = document.getElementById("cheque-records");
+                    tableBody.innerHTML = ""; // Clear table
+
+                    for (let i = 0; i < cheques[0].length; i++) {
+                        const row = `
+                            <tr>
+                                <td>${cheques[0][i]}</td>  <!-- ID -->
+                                <td>${cheques[1][i]}</td>  <!-- Payee Name -->
+                                <td>${cheques[2][i]}</td>  <!-- Amount in Number -->
+                                <td>${cheques[3][i]}</td>  <!-- Amount in Words -->
+                                <td>${cheques[4][i]}</td>  <!-- Bank Name -->
+                                <td>${cheques[5][i]}</td>  <!-- Branch -->
+                                <td>${cheques[6][i]}</td>  <!-- IFSC Code -->
+                                <td>${cheques[7][i]}</td>  <!-- Date -->
+                                <td>${cheques[8][i]}</td>  <!-- MICR Code -->
+                                <td>${cheques[9][i]}</td>  <!-- Account Number -->
+                            </tr>`;
+                        tableBody.innerHTML += row;
+                    }
+                } catch (error) {
+                    console.error("Error fetching cheque records:", error);
+                }
+            } else {
+                alert("Please install MetaMask to use this feature.");
+            }
+        }
+
+        // Fetch all cheques on page load
+        document.addEventListener("DOMContentLoaded", fetchAllCheques);
+    </script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DecentraCheque Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header-bar {
+            background-color:#023535;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 60px;
+            z-index: 1000;
+        }
+
+        .header-bar img {
+            width: 50px;
+            height: 45px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .header-bar h1 {
+            font-size: 22px;
+            color:white;
+            font-weight: 600;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: #e6e2e2;
+            min-width: 220px;
+            height: 100vh;
+            padding-top: 20px;
+            margin-top: 60px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            font-size: 18px;
+            color: #023535;
+            margin-bottom: 20px;
+            margin-left: 10px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: #023535;
+            padding: 10px 15px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #023535;
+            color: white;
+        }
+
+        /* Main content */
+        .main-content {
+            margin-left: 240px;
+            padding: 60px 40px;
+            padding-top: 100px;
+            color: white;
+            width: calc(100% - 240px);
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .welcome-box {
+            margin: auto;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .welcome-box h2 {
+            font-size: 30px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #023535;
+        }
+
+        .welcome-box p {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #023535;
+        }
+
+        .login-button {
+            padding: 10px 18px;
+            background-color: #fff;
+            color: #023535;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-button:hover {
+            background-color: #023535;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 80px 20px 20px;
+                width: 100%;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+
+        .hero {
+            background: linear-gradient(to right, #023535, #045252);
+            padding: 60px 20px;
+            text-align: center;
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .hero h2 {
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .cta-button {
+            padding: 10px 25px;
+            background-color: white;
+            color: #023535;
+            border: none;
+            font-weight: bold;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background-color: #023535;
+            color: white;
+        }
+
+       
+        .features,
+        .how-it-works,
+        .contact {
+            background: linear-gradient(to right, #023535, #045252);
+            padding: 30px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .about
+        {
+            background: linear-gradient(to right, #023535, #045252);
+            padding: 30px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+
+        }
+        .about h2,
+        .features h2,
+        .how-it-works h2,
+        .contact h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .about p,
+        .features p,
+        .how-it-works p,
+        .contact p {
+            font-size: 18px;
+            color: #e0e0e0;
+            max-width: 700px;
+            margin: 0 auto;
+         
+        }
+        .intro-text {
+    font-size: 25px;
+    color: #023535;
+    margin-bottom: 20px;
+    
+}
+
+        .feature-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .feature-box {
+            background-color: rgba(255, 255, 255, 0.07);
+            padding: 20px;
+            border-radius: 12px;
+            width: 350px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-box i {
+            font-size: 35px;
+            margin-bottom: 10px;
+            color: #f0f0f0;
+        }
+
+        .feature-box h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .feature-box p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .steps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+        }
+
+        .step {
+            background-color: rgba(255, 255, 255, 0.07);
+            padding: 20px;
+            border-radius: 12px;
+            width: 350px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .step i {
+            font-size: 35px;
+            margin-bottom: 10px;
+            color: #f0f0f0;
+        }
+
+        .step h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .step p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .contact-button {
+            padding: 10px 25px;
+            background-color: white;
+            color: #023535;
+            font-weight: 600;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .contact-button:hover {
+            background-color: #023535;
+            color: white;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            color: #023535;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header-bar">
+        <div style="display: flex; align-items: center;">
+            <img src="logo.png" alt="Logo">
+            <h1>DecentraCheque - Secure, Smart and Decentralized</h1>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">Menu</div>
+        <a href="#" class="active">Home</a>
+        <a href="chequeProcessingPage.html">Process Cheque (OCR)</a>
+        <a href="contactus.html">Contact Us</a>
+        <button class="login-button" onclick="window.location.href='login.html'">Login</button>
+    </div>
+
+    <!-- Main Content Starts Here -->
+    <div class="main-content">
+        <div class="welcome-box">
+            <h2>Welcome to DecentraCheque</h2>
+            <p class="intro-text">
+                Empowering secure and intelligent cheque validation through decentralization and AI. DecentraCheque uses blockchain and smart verification to prevent fraud and ensure real-time, trusted cheque processing.
+                </p>
+                
+        </div>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Revolutionizing Cheque Security with Blockchain & AI</h2>
+                <p>Ensuring fraud-free, transparent, and efficient cheque verification through smart automation and blockchain-based verification.</p>
+              
+                   
+           
+            </div>
+        </section>
+
+      
+        
+
+        <!-- Features Section -->
+        <section id="features" class="features">
+            <h2>Key Features</h2>
+            <div class="feature-container">
+                <div class="feature-box">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Blockchain Security</h3>
+                    <p>Immutable transaction records for fraud prevention. With blockchain, every cheque is securely validated and cannot be altered, ensuring that fraud is eliminated.</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fas fa-brain"></i>
+                    <h3>AI-Powered Verification</h3>
+                    <p>Advanced ML models for precise cheque validation. Our AI-driven system uses cutting-edge machine learning to authenticate signatures and ensure accurate validation of cheque data.</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fas fa-user-check"></i>
+                    <h3>Signature Authentication</h3>
+                    <p>State-of-the-art signature matching algorithms. Verify cheque authenticity by comparing scanned signatures to pre-registered references using sophisticated algorithms.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="how-it-works">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <i class="fas fa-upload"></i>
+                    <h3>Upload Cheque</h3>
+                    <p>Users scan and upload cheques using OCR technology, allowing the system to extract important cheque details like the amount, date, and issuer's information.</p>
+                </div>
+                <div class="step">
+                    <i class="fas fa-cogs"></i>
+                    <h3>AI & Blockchain Validation</h3>
+                    <p>AI verifies cheque details and matches signatures, while blockchain ensures transaction integrity, making the entire process secure and immutable.</p>
+                </div>
+                <div class="step">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Secure Processing</h3>
+                    <p>Once validated, the cheque is securely processed through our decentralized system, ensuring fast, transparent, and efficient cheque clearance.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact">
+            <h2>Get in Touch</h2>
+            <p>If you have any questions or would like to learn more about DecentraCheque, feel free to reach out to us. We're here to help!</p>
+            <button class="contact-button">Contact Us</button>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; 2025 DecentraCheque. All rights reserved.</p>
+    </div>
+
+</body>
+</html>

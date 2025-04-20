@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheque Processing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+
+
+    <style>
+        body {
+            margin: 0;  
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #045252;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Bar Style (NavBar) */
+        .header-bar {
+            background-color: white;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-bar img {
+            width: 50px;
+            height: 45px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .header-bar h1 {
+            font-size: 24px;
+            color: #023535;
+            font-weight: normal;
+        }
+
+        /* Sidebar Style */
+        .sidebar {
+            background-color: rgb(230, 226, 226);
+            min-width: 200px;
+            height: calc(100vh - 60px);
+            padding-top: 20px;
+            margin-top: 29px;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar .sidebar-header {
+            font-size: 18px;
+            color: #023535;
+            margin-bottom: 20px;
+            margin-left: 10px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: #023535;
+            padding: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .sidebar a:hover {
+            background-color: #023535;
+            color: white;
+            width: 200px;
+        }
+
+        .sidebar a.active {
+            background-color: #023535;
+            color: white;
+            width: 200px;
+        }
+
+        /* Main content area */
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+            color: white;
+            width: calc(100% - 220px);
+            flex-grow: 1;
+            margin-top: 20px; 
+        }
+
+        /* Catchy Information Style */
+        .catchy-info {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #f1f1f1;
+        }
+
+        /* File Upload Section Style */
+        .upload-section {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: rgba(255,255,255,0.2);
+            border-width: thin;
+            border-color:#fff;
+            color:#fff;
+            text-align:center;
+            position: relative;
+            cursor:pointer;
+        }
+
+        .upload-section input[type="file"] {
+            display:none; /* Hide default file input */
+        }
+
+        .upload-button, .browse-button {
+            background-color:#023535;
+            color:white;
+            border:none;
+            padding:10px 15px;
+            cursor:pointer;
+            border-radius:.25rem;
+            transition:.3s ease-in-out;
+            margin-left: 20px;
+            font-family: 'Poppins', sans-serif; /* Ensure Poppins font */
+        }
+
+        .upload-button:hover, .browse-button:hover {
+            background-color:#045252;
+            transition:.3s ease-in-out;
+        }
+
+        /* Drag Over Effect */
+        .upload-section.drag-over {
+            border-color:#045252;
+        }
+
+        .upload-instructions {
+            display: block; /* Show instructions initially */
+        }
+
+        .upload-instructions.hidden {
+            display: none; /* Hide instructions once image is selected or dropped */
+        }
+
+        .upload-options {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .upload-options button {
+            background-color: #023535;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 10px;
+            font-family: 'Poppins', sans-serif; /* Ensure Poppins font */
+        }
+
+        .upload-options button:hover {
+            background-color: #045252;
+        }
+
+        /* Image Preview and Confirmation Section */
+        #image-preview {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #image-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            width: 500px;
+            height:500px
+        }
+
+        .extracted-details {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            color: white;
+        }
+        table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: white; /* Set table background to white */
+}
+
+th, td {
+    border: 1px solid #ccc; /* Light grey border */
+    padding: 10px;
+    text-align: left;
+    color: #333; /* Dark grey text for contrast */
+}
+
+th {
+    background-color: #d9d9d9; /* Light grey header */
+    color: #333; /* Dark grey text */
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* Light grey for even rows */
+}
+
+tr:nth-child(odd) {
+    background-color: #ffffff; /* White for odd rows */
+}
+
+tr:hover {
+    background-color: #e0e0e0; /* Slightly darker grey for hover effect */
+}
+.popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .popup-content {
+        background-color: #047474;
+        padding: 30px;
+        text-align: center;
+        border-radius: 10px;
+        color: white;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .loading-symbol {
+        margin: 20px;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    #store-records-btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    #store-records-btn {
+        background-color: #023535;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    #store-records-btn:hover {
+        background-color: #045252;
+    }
+    .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: #047474;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .close-modal {
+            background-color: #023535;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #verify-signature-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+        
+        .close-modal:hover {
+            background-color: #045252;
+        }
+        #signature-image {
+    max-width: 100%; /* Ensure it fits within the popup */
+    height: auto; /* Maintain aspect ratio */
+}
+        .popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: none; /* Hidden by default */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    z-index: 1000; /* On top of other elements */
+}
+
+.popup-content {
+    background-color: #047474; /* Dark teal background */
+    padding: 30px;
+    text-align: center;
+    border-radius: 10px; /* Rounded corners */
+    color: white; /* White text color */
+    max-width: 600px; /* Increase max width for better cropping area */
+    width: 100%; /* Responsive width */
+}
+
+#signature-image {
+    max-width: 80%; /* Ensure it fits within the popup */
+    height: auto; 
+    /* Maintain aspect ratio */
+}
+
+.cropper-container {
+    width: 100%; /* Full width of the popup */
+    height: 300px; /* Set a fixed height for cropping */
+}
+#cropped-image {
+    display: block; /* Ensure it behaves like a block element */
+    margin: 20px auto; /* Center horizontally with auto margins */
+    max-width: 100%; /* Ensure it fits within the modal */
+    height: auto; /* Maintain aspect ratio */
+}
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <div style="display: flex; align-items: center;">
+            <img src="logo.png" alt="Logo">
+            <h1>DecentraCheque - Secure, Smart and Decentralized</h1>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">Menu</div>
+        <a href="homePage.html">Home</a>
+        <a href="#" class="active">Process Cheque (OCR)</a>
+        <div class="sidebar-options">
+            
+            <a href="contactus.html">Contact Us</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1>Cheque Processing</h1>
+        
+        <div class="catchy-info">
+            Unlock advanced OCR technology for fast cheque processing and seamless data extraction. With signature verification, ensure authenticity and prevent fraud effortlessly!
+        </div>
+
+        <div class="upload-section" id="upload-area">
+          <div class="upload-instructions">
+            Drag and drop your cheque image here or<br><br>
+            <label for="file-upload" class="browse-button">Browse</label>
+          </div>
+          <input type="file" id="file-upload" accept="image/*" />
+          <p id="file-name" style="margin-top:10px;color:white;"></p>
+
+          <div id="upload-options" class="upload-options">
+            <button id="change-btn">Change</button>
+            <button id="upload-final-btn">Upload</button>
+          </div>
+
+          <div id="image-preview">
+            <img id="preview-image" src="" alt="Cheque Image">
+            <div>
+                <button id="confirm-upload" class="upload-button">Yes, Proceed for Processing</button>
+                <button id="cancel-upload" class="upload-button">Cancel</button>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div id="validate-section" style="display: none;">
+        <br>
+        <button id="validate-details-btn" class="upload-button">Validate Extracted Details</button>
+        <button id="verify-signature-btn" class="upload-button" disabled>Process Signature</button>
+      </div>
+      
+      
+    <div class="popup" id="validation-modal">
+        <div class="popup-content">
+            <h2>Signature Verification</h2>
+            <div class="cropper-container">
+                <img id="signature-image" src="" alt="Signature" style="display: none;">
+            </div><br>
+            <img id="cropped-image" src="" alt="Cropped Signature" style="display:none; ">
+            <div id="signature-verification-result" style="display:none; margin-top:10px; padding:10px; border:1px solid #ccc; border-radius:5px;"></div>
+
+            <button id="crop-button" class ='upload-button'>Crop Signature</button>
+           
+            <button class="close-modal">Close</button>
+            
+
+        </div>
+    </div>
+    
+    
+    
+     <!-- Modal Structure -->
+     <div class="modal" id="validation-modal1">
+        <div class="modal-content">
+            <h2>Validating</h2>
+       
+            
+            
+            <button id="store-records-btn">Store Records</button>
+            <button class="close-modal">Close</button>
+
+
+        </div>
+    </div>
+    <div class="modal" id="success-modal">
+        <div class="modal-content">
+          <h2>✅ Cheque Processed successfully!</h2>
+          <p>Your cheque details have been securely recorded on the blockchain.</p>
+      
+        </div>
+        
+      </div>
+    <script>
+        const fileInput = document.getElementById('file-upload');
+        const fileNameDisplay = document.getElementById('file-name');
+        const uploadInstructions = document.querySelector('.upload-instructions');
+        const uploadOptions = document.getElementById('upload-options');
+        const changeButton = document.getElementById('change-btn');
+        const uploadFinalButton = document.getElementById('upload-final-btn');
+    
+        const imagePreview = document.getElementById('image-preview');
+        const previewImage = document.getElementById('preview-image');
+        const confirmUploadButton = document.getElementById('confirm-upload');
+        const cancelUploadButton = document.getElementById('cancel-upload');
+    
+        let fileSelected = false;
+    
+        // When a file is selected, show file name and options
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0 && !fileSelected) {
+                fileNameDisplay.textContent = fileInput.files[0].name;
+                uploadInstructions.classList.add('hidden');
+                uploadOptions.style.display = 'inline';
+                fileSelected = true;
+            }
+        });
+    
+        // Reset the file input when the user clicks 'Change'
+        changeButton.addEventListener('click', () => {
+            fileInput.value = '';
+            fileNameDisplay.textContent = '';
+            uploadOptions.style.display = 'none';
+            uploadInstructions.classList.remove('hidden');
+            imagePreview.style.display = 'none';
+            fileSelected = false;
+        });
+    
+        // Display the image preview when the user selects a file
+        uploadFinalButton.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            if (file) {
+                uploadOptions.style.display = 'none';
+                previewImage.src = URL.createObjectURL(file);
+                imagePreview.style.display = 'block';
+            }
+        });
+    
+        // Handle file upload and send to the server for processing
+        confirmUploadButton.addEventListener('click', () => {
+            const file = fileInput.files[0];
+            if (file) {
+                console.log("File selected:", file);
+    
+                // Create FormData object and append file and prompt
+                const formData = new FormData();
+                formData.append("file", file);
+    
+                // The OCR instruction or prompt
+                const prompt = "Extract all the text from the cheque image for processing";
+                formData.append("prompt", prompt);
+    
+                // Disable button during processing
+                confirmUploadButton.textContent = "Processing...";
+                confirmUploadButton.disabled = true;
+    
+                console.log("Sending request to server...");
+    
+                // Send the request to the backend
+                fetch('http://127.0.0.1:8000/api/process-cheque/', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then((response) => {
+                    console.log("Server response:", response);
+                    if (!response.ok) {
+                        throw new Error("Error processing the image.");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    console.log("Server response data:", data);
+    
+                    // Re-enable the button after processing
+                    confirmUploadButton.textContent = "Yes, Proceed for Processing";
+                    confirmUploadButton.disabled = false;
+    
+                    // If there is extracted text in the response, display it
+                    if (data.extractedText) {
+    imagePreview.style.display = 'none';
+    const resultDiv = document.createElement('div');
+    resultDiv.className = "extracted-details";
+
+    const extractedText = data.extractedText;
+
+    // Remove asterisks and split the text into lines
+    const cleanedText = extractedText.replace(/\*/g, '').trim();
+    const lines = cleanedText.split("\n").map(line => line.trim()).filter(line => line.length > 0);
+
+    // Predefined list of important fields
+    const importantFields = [
+        "Payee Name",
+        "Amount in Numbers",
+        "Amount (Numeric)",
+        "Amount (Number)",
+        "Amount (Words)",
+        "Amount in Number",
+        "Amount in Words",
+        "IFSC Code",
+        "Bank Name",
+        "Branch",
+        "MICR Code",
+        "Account Number",
+        "Date",
+    ];
+
+    const tableData = [];
+    const missingFields = [];
+    const dataToLog = {}; // Object to store all the important fields
+
+    // Categorize the lines into important and missing fields
+    lines.forEach(line => {
+        const parts = line.split(":");
+        const fieldName = parts[0] ? parts[0].trim() : "";
+        const fieldDetail = parts[1] ? parts[1].trim() : "N/A";
+
+        if (importantFields.includes(fieldName)) {
+            tableData.push({ fieldName, fieldDetail });
+            dataToLog[fieldName] = fieldDetail; // Add the data to the object
+        } else if (!importantFields.includes(fieldName) && !line.includes("Other Fields:")) {
+            // Add only genuinely missing fields, excluding the first bullet content
+            missingFields.push(line);
+        }
+    });
+
+    // Log the data to the console
+    console.log("Extracted Details:", dataToLog);
+
+    // Create a table for important details
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse';
+    table.style.marginTop = '10px';
+
+    // Table headers
+    const headerRow = document.createElement('tr');
+    headerRow.style.backgroundColor = '#045252';
+    headerRow.style.color = '#fff';
+
+    const headerCell1 = document.createElement('th');
+    headerCell1.textContent = 'Field';
+    headerCell1.style.border = '1px solid #fff';
+    headerCell1.style.padding = '10px';
+
+    const headerCell2 = document.createElement('th');
+    headerCell2.textContent = 'Details';
+    headerCell2.style.border = '1px solid #fff';
+    headerCell2.style.padding = '10px';
+
+    headerRow.appendChild(headerCell1);
+    headerRow.appendChild(headerCell2);
+    table.appendChild(headerRow);
+
+    // Populate table rows with important details
+    tableData.forEach(({ fieldName, fieldDetail }) => {
+        const row = document.createElement('tr');
+        row.style.backgroundColor = table.rows.length % 2 === 0 ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+        const fieldCell = document.createElement('td');
+        fieldCell.textContent = fieldName;
+        fieldCell.style.border = '1px solid #fff';
+        fieldCell.style.padding = '10px';
+
+        const detailCell = document.createElement('td');
+        detailCell.textContent = fieldDetail;
+        detailCell.style.border = '1px solid #fff';
+        detailCell.style.padding = '10px';
+
+        row.appendChild(fieldCell);
+        row.appendChild(detailCell);
+        table.appendChild(row);
+    });
+
+    // Add the table to the result div
+    resultDiv.appendChild(table);
+
+    // Add missing fields below the table, if any
+    if (missingFields.length > 0) {
+        const missingFieldsDiv = document.createElement('div');
+        missingFieldsDiv.style.marginTop = '20px';
+
+        const missingFieldsHeading = document.createElement('h2');
+        missingFieldsHeading.textContent = 'Other Details:';
+        missingFieldsHeading.style.color = '#fff';
+        missingFieldsDiv.appendChild(missingFieldsHeading);
+
+        const missingFieldsList = document.createElement('ul');
+        missingFieldsList.style.color = '#fff';
+
+        missingFields.forEach(field => {
+            const listItem = document.createElement('li');
+            listItem.textContent = field;
+            missingFieldsList.appendChild(listItem);
+        });
+
+        missingFieldsDiv.appendChild(missingFieldsList);
+        resultDiv.appendChild(missingFieldsDiv);
+    }
+
+    // Append the result to the main content
+    document.querySelector('.main-content').appendChild(resultDiv);
+    const validateSection = document.getElementById('validate-section');
+    validateSection.style.display = 'block';  // Show the buttons
+    document.querySelector('.main-content').appendChild(validateSection);
+
+    // Adding event listeners to the new buttons
+    const validateButton = document.getElementById('validate-details-btn');
+    
+    async function storeRecordsOnBlockchain() {
+    try {
+        console.log("Connecting to MetaMask...");
+
+        // Ensure Web3 & MetaMask
+        if (typeof window.ethereum === "undefined") {
+            alert("Please install MetaMask to use this feature.");
+            return;
+        }
+
+        // Request user account from MetaMask
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        
+        const userAccount = accounts[0];
+        
+        console.log("Connected to MetaMask account:", userAccount);
+
+        // Initialize Web3 & Contract (Ensure it's available)
+        const web3 = new Web3(window.ethereum);
+        const contractABI = [{
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "AccountFlagged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "AccountRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "chequeNumber",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "issuer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isValid",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        }
+      ],
+      "name": "ChequeProcessed",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "cheques",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "chequeNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "issueDate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "issuerAccount",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "isProcessed",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "validAccounts",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        }
+      ],
+      "name": "registerAccount",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_account",
+          "type": "address"
+        }
+      ],
+      "name": "flagAccount",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_chequeNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_issueDate",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_issuer",
+          "type": "address"
+        }
+      ],
+      "name": "processCheque",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_chequeNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "getCheque",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "chequeNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "issueDate",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "issuerAccount",
+              "type": "address"
+            },
+            {
+              "internalType": "bool",
+              "name": "isProcessed",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct ChequeMetadatanew.Cheque",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    }];
+        const contractAddress = "0x895003d1D5691002AEdfad0721c6de08Ea7Dc071"; // Replace with actual contract address
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+        const tx = await contract.methods.registerAccount(userAccount).send({ from: userAccount });
+        console.log("Contract instance created:", contract);
+
+        // Generate cheque details
+        const chequeNumber = Math.floor(100000 + Math.random() * 900000);
+        console.log("Generated Cheque Number:", chequeNumber);
+        const keyVariations = {
+    "Amount (Number)": ["Amount (Number)", "Amount in Numbers", "Amount(Numeric)", "Amount in Number"],
+    "Date": ["Date", "Cheque Date"]
+};
+
+// Helper function to get value for a key considering variations
+const getValue = (key, data) => {
+    const variations = keyVariations[key] || [key];
+    for (const variation of variations) {
+        if (data[variation]) return data[variation];
+    }
+    return null; // Return null if no match found
+};
+        let amountInNumber = getValue("Amount (Number)", dataToLog);
+        const date = getValue("Date", dataToLog);
+
+        console.log("Extracted values:", {
+            chequeNumber,
+            amountInNumber,
+            date,
+            userAccount
+        });
+
+        // Ensure required fields
+        if (!amountInNumber || !date) {
+            throw new Error("Missing required fields: Amount or Date.");
+        }
+
+        // Convert amount to integer
+        amountInNumber = parseInt(amountInNumber.replace(/[^0-9]/g, ""), 10);
+        console.log("Formatted amount in number:", amountInNumber);
+
+        // Convert date to Unix timestamp
+        const issueDate = Math.floor(new Date(date).getTime() / 1000);
+        console.log("Converted issue date (timestamp):", issueDate);
+
+        console.log("Estimating gas for the transaction...");
+
+        // Estimate gas
+        const gasEstimate = await contract.methods.processCheque(
+            chequeNumber,
+            amountInNumber,
+            issueDate,
+            userAccount
+        ).estimateGas({ from: userAccount });
+
+        console.log("Sending transaction to store the record on the blockchain...");
+
+        // Send transaction
+        const txReceipt = await contract.methods.processCheque(
+            chequeNumber,
+            amountInNumber,
+            issueDate,
+            userAccount
+        ).send({ from: userAccount, gas: gasEstimate });
+
+        console.log("Transaction successful:", txReceipt);
+        alert("✅ Cheque stored successfully on the blockchain!");
+
+    } catch (error) {
+        console.error("❌ Error storing cheque on the blockchain:", error);
+        if (error.message.includes("invalid BigNumber string")) {
+            alert("❌ Empty fields. Please check the input fields for numeric values.");
+  } 
+  else if((error.message.includes("Missing required fields: Amount or Date")))
+  {
+    alert("❌ Cheque amount is not present. Please check the input fields for numeric values.");
+  }
+  else if (
+  error.message.includes("revert Amount must be greater than zero") ||
+  (error.data && error.data.message && error.data.message.includes("Amount must be greater than zero"))
+) {
+  alert("❌ Cheque amount must be greater than zero. Please enter a valid amount.");}
+
+  else {
+    alert("Try Again");
+  }
+    }
+}
+
+
+
+// Event listener for storing the record
+document.getElementById('store-records-btn').addEventListener('click', () => {
+    // Assume dataToLog is already available globally or dynamically created
+    storeRecordsOnBlockchain(dataToLog);
+});
+
+
+    // validateButton.addEventListener('click', () => {
+    //     // Add your validation logic here
+    //     alert('Validating extracted details...');
+    // });
+
+const verifySignatureButton = document.getElementById('verify-signature-btn');
+const validationModal = document.getElementById('validation-modal');
+const validationModal1 = document.getElementById('validation-modal1');
+const closeModalButtons = document.querySelectorAll('.close-modal');
+const signatureImage = document.getElementById('signature-image');
+const croppedImage = document.getElementById('cropped-image');
+let cropper;
+
+// Show the modal when the verify signature button is clicked
+verifySignatureButton.addEventListener('click', () => {
+    const file = fileInput.files[0];
+    if (file) {
+        const imageUrl = URL.createObjectURL(file);
+        signatureImage.src = imageUrl;
+        signatureImage.style.display = 'block';
+        validationModal.style.display = 'flex'; // Show the modal
+
+        //Initialize Cropper.js
+        // cropper = new Cropper(signatureImage, {
+        //     aspectRatio: 1, // Set aspect ratio as needed
+        //     viewMode: 1,
+        //     autoCropArea: 1,
+        //     responsive: true,
+        //     modal: true,
+        //     guides: true,
+        //     center: true,
+        //     highlight: true,
+        // });
+    }
+});
+
+// Close the modal when any close button is clicked
+closeModalButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        validationModal.style.display = 'none'; // Hide the modal
+        // if (cropper) {
+        //     cropper.destroy(); // Destroy cropper instance
+        // }
+    });
+});
+const pinataApiKey = "67069ed5bd4ab45e78be";
+const pinataSecretKey = "f4a54a2a1a5dcdee1391bec8867b89259fc1eaaadc8aff40d93ed8730b26c1f3";
+
+// Function to fetch all pinned files from Pinata
+async function fetchPinataFiles() {
+    try {
+        const response = await fetch("https://api.pinata.cloud/data/pinList?status=pinned", {
+            method: "GET",
+            headers: {
+                "pinata_api_key": pinataApiKey,
+                "pinata_secret_api_key": pinataSecretKey
+            }
+        });
+
+        if (!response.ok) {
+            console.error("❌ Failed to fetch Pinata files:", response.statusText);
+            return [];
+        }
+
+        const data = await response.json();
+        return data.rows || []; // Return only pinned files
+    } catch (error) {
+        console.error("❌ Error fetching files from Pinata:", error);
+        return [];
+    }
+}
+
+
+
+// Handle cropping and processing
+document.getElementById('crop-button').addEventListener('click', async () => {
+    console.log("🟡 Button Clicked: Processing cheque...");
+
+    const file = fileInput.files[0]; // Get selected file
+    if (!file) {
+        alert("❌ Please select a cheque image.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("cheque_image", file); // Attach file
+
+    try {
+        let response = await fetch("http://127.0.0.1:8000/api/upload_cheque/", {
+            method: "POST",
+            body: formData
+        });
+
+        let data = await response.json();
+
+        if (response.ok) {
+            // Display the cropped signature
+            signatureImage.src = data.signature_url;
+            signatureImage.style.display = 'block';
+            validationModal.style.display = 'flex'; // Show the modal
+
+            console.log("✅ Cropped signature received:", data.signature_url);
+
+            // Extract Payee Name from `dataToLog`
+            const accountNumber = dataToLog?.["Account Number"]?.trim();
+            console.log(accountNumber)
+            if (!accountNumber) {
+                alert("❌ Account number not found in cheque data!");
+                return;
+            }
+
+            console.log(`🔎 Checking for reference signature of "${accountNumber}" in Pinata...`);
+
+            const files = await fetchPinataFiles();
+            console.log("📁 Pinata Files:", files);
+
+            if (!files || !files.length) {
+                console.log("❌ No files found in Pinata.");
+                alert("Reference signature not found.");
+                return;
+            }
+
+            // Normalize Payee Name and filenames for matching
+            const normalizeText = (text) => text.trim();
+            const accountNumberNormalized = normalizeText(accountNumber) + ".png"; 
+            console.log("🔤 Normalized Account Name:", accountNumberNormalized);
+
+            // **Find Exact Match**
+            let matchedFile = files.find(file => file.metadata.name === accountNumberNormalized);
+            console.log("🔎 Exact Match:", matchedFile);
+
+            // **Try Partial Match if Exact Match Not Found**
+            if (!matchedFile) {
+                matchedFile = files.find(file =>
+                    normalizeText(file.metadata?.name).includes(normalizeText(accountNumber))
+                );
+            }
+
+            if (!matchedFile) {
+                console.error("❌ No matching reference signature found.");
+                alert("No matching reference signature found.");
+                return;
+            }
+
+            const referenceImageUrl = `https://gateway.pinata.cloud/ipfs/${matchedFile.ipfs_pin_hash}`;
+            console.log(`✅ Found reference image: ${referenceImageUrl}`);
+
+            console.log("🔁 Sending images to predict_similarity API...");
+
+            const formData = new FormData();
+
+            // Convert URLs to Blob objects
+            const signatureUrl = data.signature_url; 
+            console.log("🖼 Signature URL:", signatureUrl);
+
+            const image1Blob = await fetch(signatureUrl).then(res => res.blob());
+            const image2Blob = await fetch(referenceImageUrl).then(res => res.blob());
+
+            formData.append("image1", image1Blob, "image1.png");
+            formData.append("image2", image2Blob, "image2.png");
+
+            console.log("🟢 Calling API...");
+            const verifyResponse = await fetch("http://127.0.0.1:8000/api/predict_similarity/", {
+                method: "POST",
+                body: formData,
+            });
+
+            console.log("🔄 API response received!");
+            const verifyResult = await verifyResponse.json();
+
+            if (verifyResponse.ok) {
+    console.log("✅ Signature Verification Result:", verifyResult);
+    
+    // Display result and success message together
+    const resultContainer = document.getElementById("signature-verification-result");
+  
+
+let messageHTML = `
+    <p><strong>Prediction:</strong> ${verifyResult.prediction}</p>
+    <p><strong>Confidence:</strong> ${verifyResult.confidence.toFixed(2)}</p>
+`;
+
+if (verifyResult.prediction === "Similar") {
+    messageHTML += `
+        <div style="
+            margin-top: 20px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+        ">
+            ✅ Cheque processed successfully and recorded on the blockchain!
+        </div>
+    `;
+} else {
+    messageHTML += `
+        <div style="
+            margin-top: 20px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 16px;
+        ">
+            ❌ Signature mismatch.There is a Forgery!
+        </div>
+    `;
+}
+
+resultContainer.innerHTML = messageHTML;
+resultContainer.style.display = "block";
+            }
+else{
+                console.error("❌ Signature verification failed:", verifyResult);
+                const resultContainer = document.getElementById("signature-verification-result");
+                resultContainer.innerHTML = `<p style="color:red;">Signature verification failed. Try again.</p>`;
+                resultContainer.style.display = "block";
+              
+            }
+
+
+        } else {
+            console.error("❌ Upload failed:", data);
+            alert("Upload failed.");
+        }
+    } catch (error) {
+        console.error("❌ Error occurred:", error);
+        alert("Something went wrong. Please try again.");
+    }
+});
+
+
+
+
+} else {
+    // If no extracted text, show a message
+    const errorDiv = document.createElement('div');
+    errorDiv.className = "extracted-details";
+    errorDiv.innerHTML = `<h2 style="color:#fff;">Error</h2><p style="color:#fff;">No details were extracted from the image.</p>`;
+    document.querySelector('.main-content').appendChild(errorDiv);
+}
+
+                })
+                .catch((error) => {
+                    // Handle errors
+                    console.error("Error:", error);
+                    confirmUploadButton.textContent = "Yes, Proceed for Processing";
+                    confirmUploadButton.disabled = false;
+    
+                    // Optionally display an error message
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = "extracted-details";
+                    errorDiv.innerHTML = `<h2 style="color:#fff;">Error</h2><p style="color:#fff;">There was an error processing the image. Please try again.</p>`;
+                    document.querySelector('.main-content').appendChild(errorDiv);
+                });
+            } else {
+                console.log("No file selected.");
+            }
+        });
+    
+        // Handle the cancel button to reset everything
+        cancelUploadButton.addEventListener('click', () => {
+            console.log("Cancel button clicked.");
+            imagePreview.style.display = 'none';
+            uploadInstructions.classList.remove('hidden');
+            fileInput.value = '';
+            fileNameDisplay.textContent = '';
+            fileSelected = false;
+            uploadOptions.style.display = 'none';
+        });
+    const validateButton = document.getElementById('validate-details-btn');
+
+     // Show modal when validate button is clicked
+     document.getElementById('validate-details-btn').addEventListener('click', () => {
+            document.getElementById('validation-modal1').style.display = 'flex';
+            const isValid = true; // set this based on actual validation
+
+  if (isValid) {
+    document.getElementById("verify-signature-btn").disabled = false;
+    document.getElementById("verify-signature-btn").style.opacity = "1";
+    document.getElementById("verify-signature-btn").style.cursor = "pointer";
+  }
+        });
+
+        // Close modal functionality
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            document.getElementById('validation-modal').style.display = 'none';
+        });
+        
+        // Optional: Close modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('validation-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        document.getElementById('validate-details-btn').addEventListener('click', () => {
+            document.getElementById('validation-modal1').style.display = 'flex';
+        });
+
+        // Close modal functionality
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            document.getElementById('validation-modal1').style.display = 'none';
+        });
+        
+        // Optional: Close modal when clicking outside of it
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('validation-modal1');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        document.querySelectorAll('.close-modal').forEach(button => {
+  button.addEventListener('click', () => {
+    const modal = button.closest('.modal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  });
+});
+
+    </script>
+  
+    </body></html>
