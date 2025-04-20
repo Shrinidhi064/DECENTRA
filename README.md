@@ -1,41 +1,43 @@
-# DECENTRACHEQUE
+# 💳 DECENTRACHEQUE
 
+**DecentraCheque** is a decentralized smart cheque validation system that tackles key challenges in traditional processing—such as OCR inaccuracies, fraud, and lack of transparency.  
+By integrating **machine learning** for signature verification and **blockchain** for tamper-proof record-keeping, it ensures **secure**, **accurate**, and **transparent** cheque processing.
 
-**DecentraCheque** is a decentralized smart cheque validation system that tackles key challenges in traditional processing such as OCR inaccuracies, fraud, and lack of transparency. By integrating machine learning for signature verification and blockchain for tamper-proof record-keeping, it ensures secure, accurate, and transparent cheque processing.
+---
 
-**Software Requirements**
-![image](https://github.com/user-attachments/assets/7a4c1a88-bf57-40a7-8e35-7c4a7f3c1795)
+### Software Requirements
 
+![Software Requirements](https://github.com/user-attachments/assets/7a4c1a88-bf57-40a7-8e35-7c4a7f3c1795)
 
+---
 
-**System Workflow**
-![image](https://github.com/user-attachments/assets/3ecf7cb2-0c06-463a-8570-51bab35f99ad)
+### System Workflow
 
+![System Workflow](https://github.com/user-attachments/assets/3ecf7cb2-0c06-463a-8570-51bab35f99ad)
 
+---
 
-**Required installations**
-**IPFS**
-Used to store encrypted cheque and signature images in a decentralized, immutable way.
+### Required Installations
 
-**Ganache**
-A personal Ethereum blockchain for smart contract development and testing.
+1. **IPFS**  
+   Used to store encrypted cheque and signature images in a decentralized, immutable way.
 
-**MetaMask (Extension)**
-Browser extension for managing Ethereum accounts and interacting with deployed smart contracts.
+2. **Ganache**  
+   A personal Ethereum blockchain for smart contract development and testing.
 
-**Running Frontend**
-Setup a server and run the command:
+3. **MetaMask (Browser Extension)**  
+   Used to manage Ethereum accounts and interact with deployed smart contracts via the browser.
+
+---
+
+### Running the Application
+
+#### Frontend
+To start a simple HTTP server for the frontend:
+```
 python -m http.server 8000
 
-**Running Django Backend**
+#### Backend
 python manage.py runserver 
-
-**Commands related to running smartcontracts**
-npm install -g truffle
-truffle init
-truffle compile
-truffle migrate –network development
-
-
 
 
