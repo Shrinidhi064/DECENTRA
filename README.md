@@ -56,3 +56,4 @@ truffle compile
 truffle migrate --network development
 ```
 
+Refer requirements.txt to install python libraries for backend!
