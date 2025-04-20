@@ -7,6 +7,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <style>
+        .metamask-box {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 400px;
+            margin-top: 20px;
+        }
+
+        .metamask-box button {
+            width: 100%;
+            padding: 10px;
+            background-color: #FFA500;
+            color: white;
+            border: none;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -51,7 +74,7 @@
         .login-box h1 {
             margin-bottom: 20px;
             font-size: 24px;
-            color:#023535;
+            color: #023535;
         }
 
         .login-box input[type="text"],
@@ -90,43 +113,18 @@
         }
 
         .login-box button:hover {
-            background-color:#023535;
+            background-color: #023535;
         }
 
-        /* Tooltip style */
-        .tooltip {
-            position: absolute;
-            background-color: #f9f9f9;
-            padding: 5px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font-size: 12px;
-            color: #555;
-            width: auto;
-            max-width: 200px;
-            display: none;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            z-index: 10;
-            pointer-events: none;
-            text-align: left;
-        }
-
-        .tooltip p {
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Modal Style */
         .modal {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
-            z-index: 1; /* Sit on top */
+            z-index: 1;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.4); /* Fallback color for modal backdrop */
-            padding-top: 60px;
+            background-color: rgba(0, 0, 0, 0.4);
             text-align: center;
         }
 
@@ -153,31 +151,6 @@
             text-decoration: none;
             cursor: pointer;
         }
-
-        .modal-content .tick {
-            font-size: 50px;
-            color: green;
-            margin-bottom: 20px;
-        }
-
-        .modal-content h2 {
-            font-size: 24px;
-            color: #023535;
-            margin-bottom: 20px;
-        }
-
-        .modal-content button {
-            background-color: #023535;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .modal-content button:hover {
-            background-color: #045252;
-        }
     </style>
 </head>
 <body>
@@ -185,117 +158,63 @@
         <img src="logo.png" alt="Logo Placeholder">
         <h1 style="color: #023535; font-family: 'Poppins', sans-serif; font-weight: 300;">DecentraCheque</h1>
     </div>
+
     <div class="login-box">
-        <h1 style="text-align: left;">Login</h1>
-        <div class="error-message" id="error-msg">All fields are required and must meet validation criteria.</div>
-        <form id="login-form">
-            <input type="text" id="username" placeholder="Email Address" required style="margin-bottom: 20px;">
-            <div class="input-container">
-                <input type="password" id="password" placeholder="Password" required>
-            </div>
-            <a href="forgotPassword.html" id="forgot-password" style="display: block; margin-top: 50px;">Forgot Password?</a>
+        <h1>Login</h1>
+        <form id="login-form" action="ph.php" method="POST">
+            <input type="text" name="username" id="username" placeholder="Email Address" required>
+            <input type="password" name="password" id="password" placeholder="Password" required>
+            <a href="forgotPassword.html" style="display: block; margin-top: 20px;">Forgot Password?</a>
             <button type="submit">Login</button>
         </form>
     </div>
 
-    <!-- The Modal -->
-    <div id="myModal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="closeModal">&times;</span>
-            <div class="tick">
-                <i class="fas fa-check-circle"></i> <!-- Green check mark icon -->
-            </div>
-            <h2>Login Successful!</h2>
-            <button id="connectWalletBtn">Connect to Wallet</button>
-            <p id="wallet-address" style="margin-top: 20px; font-size: 14px; color: #023535;"></p>
-        </div>
+    <div class="metamask-box" id="metamask-box">
+        <h2>Connect with MetaMask</h2>
+        <button id="connect-metamask">Connect Wallet</button>
+        <p id="wallet-address" style="margin-top: 10px; font-weight: bold;"></p>
     </div>
 
     <script>
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent form submission
+        document.getElementById("login-form").addEventListener("submit", async function(event) {
+            event.preventDefault(); // Prevent default form submission
 
-            const username = document.getElementById('username');
-            const password = document.getElementById('password');
-            const errorMessage = document.getElementById('error-msg');
+            let formData = new FormData(this);
 
-            let valid = true;
+            let response = await fetch("ph.php", {
+                method: "POST",
+                body: formData
+            });
 
-            // Username validation (email or non-empty text)
-            if (!username.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(username.value.trim())) {
-                valid = false;
-                username.style.borderColor = 'red';
+            let result = await response.text();
+
+            if (result.trim() === "success") {
+                // Hide login box and show MetaMask box only if login is successful
+                document.querySelector(".login-box").style.display = "none";
+                document.getElementById("metamask-box").style.display = "block";
             } else {
-                username.style.borderColor = '#ccc';
-            }
-
-            // Password validation (at least 8 characters, one uppercase, one number)
-            const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-            if (!password.value.trim() || !passwordRegex.test(password.value.trim())) {
-                valid = false;
-                password.style.borderColor = 'red';
-            } else {
-                password.style.borderColor = '#ccc';
-            }
-
-            if (!valid) {
-                errorMessage.style.display = 'block';
-            } else {
-                errorMessage.style.display = 'none';
-                document.getElementById('myModal').style.display = 'block'; // Show modal
+                alert(result); // Show error message from PHP (e.g., "Invalid Username" or "Invalid Password")
             }
         });
 
-        // Close the modal when the user clicks on the close button
-        document.getElementById('closeModal').addEventListener('click', function() {
-            document.getElementById('myModal').style.display = 'none';
+        document.getElementById("connect-metamask").addEventListener("click", async function () {
+            if (typeof window.ethereum !== "undefined") {
+                try {
+                    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+                    document.getElementById("wallet-address").textContent = "Connected: " + accounts[0];
+
+                    // Redirect to chequeProcessingPage.html after successful MetaMask connection
+                    setTimeout(() => {
+                        window.location.href = "homePage.html";
+                    }, 1000); // Optional delay
+                } catch (error) {
+                    console.error("MetaMask connection error", error);
+                    alert("Connection failed. Please try again.");
+                }
+            } else {
+                alert("MetaMask is not installed. Please install it to continue.");
+            }
         });
-
-        // Close the modal if the user clicks outside of the modal content
-        window.onclick = function(event) {
-            if (event.target == document.getElementById('myModal')) {
-                document.getElementById('myModal').style.display = 'none';
-            }
-        };
-
-        const connectWalletBtn = document.getElementById('connectWalletBtn');
-    const walletAddress = document.getElementById('wallet-address');
-
-    // Function to check if MetaMask is installed
-    function checkMetaMask() {
-        if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
-            console.log("MetaMask is installed!");
-        } else {
-            console.error("MetaMask is not installed!");
-            walletAddress.innerText = "MetaMask is not installed. Please install it to proceed.";
-        }
-    }
-
-    // Function to connect to MetaMask
-    async function connectMetaMask() {
-        if (typeof window.ethereum !== 'undefined') {
-            try {
-                // Request account access
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                // Display connected account
-                walletAddress.innerText = `Connected to MetaMask: ${accounts[0]}`;
-                console.log("Connected account:", accounts[0]);
-            } catch (error) {
-                // Handle errors
-                walletAddress.innerText = 'Failed to connect MetaMask. Please try again.';
-                console.error("Error connecting to MetaMask:", error);
-            }
-        } else {
-            console.error("MetaMask is not available.");
-            // walletAddress.innerText = "MetaMask is not available. Please install it.";
-        }
-    }
-
-    // Add click event listener to the connect wallet button
-    connectWalletBtn.addEventListener('click', connectMetaMask);
-
-    // Check MetaMask installation on page load
-    window.onload = checkMetaMask;
     </script>
 </body>
 </html>
